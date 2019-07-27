@@ -1,15 +1,11 @@
 # Copyright (C) 2012 The Android Open Source Project
 #
-# IMPORTANT: Do not create world writable files or directories.
-# This is a common source of Android security bugs.
+# IMPORTANT: Do not create world writable files or directories. This is a common source of Android 
+# security bugs.
 #
 
-import /init.environ.rc
-import /init.usb.rc
-import /init.${ro.hardware}.rc
-import /vendor/etc/init/hw/init.${ro.hardware}.rc
-import /init.usb.configfs.rc
-import /init.${ro.zygote}.rc
+import /init.environ.rc import /init.usb.rc import /init.${ro.hardware}.rc import 
+/vendor/etc/init/hw/init.${ro.hardware}.rc import /init.usb.configfs.rc import /init.${ro.zygote}.rc
 
 on early-init
     # Set init and its forked children's oom_adj.
@@ -111,10 +107,8 @@ on init
     write /proc/sys/kernel/hung_task_timeout_secs 0
     write /proc/cpu/alignment 4
 
-    # scheduler tunables
-    # Disable auto-scaling of scheduler tunables with hotplug. The tunables
-    # will vary across devices in unpredictable ways if allowed to scale with
-    # cpu cores.
+    # scheduler tunables Disable auto-scaling of scheduler tunables with hotplug. The tunables will 
+    # vary across devices in unpredictable ways if allowed to scale with cpu cores.
     write /proc/sys/kernel/sched_tunable_scaling 0
     write /proc/sys/kernel/sched_latency_ns 10000000
     write /proc/sys/kernel/sched_wakeup_granularity_ns 2000000
@@ -127,11 +121,10 @@ on init
     write /proc/sys/kernel/sched_rt_runtime_us 950000
     write /proc/sys/kernel/sched_rt_period_us 1000000
 
-    # Assign reasonable ceiling values for socket rcv/snd buffers.
-    # These should almost always be overridden by the target per the
-    # the corresponding technology maximums.
-    write /proc/sys/net/core/rmem_max  262144
-    write /proc/sys/net/core/wmem_max  262144
+    # Assign reasonable ceiling values for socket rcv/snd buffers. These should almost always be 
+    # overridden by the target per the the corresponding technology maximums.
+    write /proc/sys/net/core/rmem_max 262144
+    write /proc/sys/net/core/wmem_max 262144
 
     # reflect fwmark from incoming packets onto generated replies
     write /proc/sys/net/ipv4/fwmark_reflect 1
@@ -160,8 +153,8 @@ on init
     mkdir /dev/cpuset
     mount cpuset none /dev/cpuset nodev noexec nosuid
 
-    # this ensures that the cpusets are present and usable, but the device's
-    # init.rc must actually set the correct cpus
+    # this ensures that the cpusets are present and usable, but the device's init.rc must actually 
+    # set the correct cpus
     mkdir /dev/cpuset/foreground
     copy /dev/cpuset/cpus /dev/cpuset/foreground/cpus
     copy /dev/cpuset/mems /dev/cpuset/foreground/mems
@@ -169,15 +162,13 @@ on init
     copy /dev/cpuset/cpus /dev/cpuset/background/cpus
     copy /dev/cpuset/mems /dev/cpuset/background/mems
 
-    # system-background is for system tasks that should only run on
-    # little cores, not on bigs
-    # to be used only by init, so don't change system-bg permissions
+    # system-background is for system tasks that should only run on little cores, not on bigs to be 
+    # used only by init, so don't change system-bg permissions
     mkdir /dev/cpuset/system-background
     copy /dev/cpuset/cpus /dev/cpuset/system-background/cpus
     copy /dev/cpuset/mems /dev/cpuset/system-background/mems
 
-    # restricted is for system tasks that are being throttled
-    # due to screen off.
+    # restricted is for system tasks that are being throttled due to screen off.
     mkdir /dev/cpuset/restricted
     copy /dev/cpuset/cpus /dev/cpuset/restricted/cpus
     copy /dev/cpuset/mems /dev/cpuset/restricted/mems
@@ -212,13 +203,13 @@ on init
 
 
     # qtaguid will limit access to specific data based on group memberships.
-    #   net_bw_acct grants impersonation of socket owners.
-    #   net_bw_stats grants access to other apps' detailed tagged-socket stats.
+    #   net_bw_acct grants impersonation of socket owners. net_bw_stats grants access to other apps' 
+    #   detailed tagged-socket stats.
     chown root net_bw_acct /proc/net/xt_qtaguid/ctrl
     chown root net_bw_stats /proc/net/xt_qtaguid/stats
 
-    # Allow everybody to read the xt_qtaguid resource tracking misc dev.
-    # This is needed by any process that uses socket tagging.
+    # Allow everybody to read the xt_qtaguid resource tracking misc dev. This is needed by any 
+    # process that uses socket tagging.
     chmod 0644 /dev/xt_qtaguid
 
     mkdir /dev/cg2_bpf
@@ -227,8 +218,7 @@ on init
     chmod 0600 /dev/cg2_bpf
     mount bpf bpf /sys/fs/bpf nodev noexec nosuid
 
-    # Create location for fs_mgr to store abbreviated output from filesystem
-    # checker programs.
+    # Create location for fs_mgr to store abbreviated output from filesystem checker programs.
     mkdir /dev/fscklogs 0770 root system
 
     # pstore/ramoops previous console log
@@ -243,8 +233,8 @@ on init
     # enable armv8_deprecated instruction hooks
     write /proc/sys/abi/swp 1
 
-    # Linux's execveat() syscall may construct paths containing /dev/fd
-    # expecting it to point to /proc/self/fd
+    # Linux's execveat() syscall may construct paths containing /dev/fd expecting it to point to 
+    # /proc/self/fd
     symlink /proc/self/fd /dev/fd
 
     export DOWNLOAD_CACHE /data/cache
@@ -255,12 +245,12 @@ on init
     # Allow up to 32K FDs per process
     setrlimit nofile 32768 32768
 
-    # This allows the ledtrig-transient properties to be created here so
-    # that they can be chown'd to system:system later on boot
+    # This allows the ledtrig-transient properties to be created here so that they can be chown'd to 
+    # system:system later on boot
     write /sys/class/leds/vibrator/trigger "transient"
 
-# Healthd can trigger a full boot from charger mode by signaling this
-# property when the power button is held.
+# Healthd can trigger a full boot from charger mode by signaling this property when the power button 
+# is held.
 on property:sys.boot_from_charger_mode=1
     class_stop charger
     trigger late-init
@@ -278,22 +268,20 @@ on firmware_mounts_complete
 on late-init
     trigger early-fs
 
-    # Mount fstab in init.{$device}.rc by mount_all command. Optional parameter
-    # '--early' can be specified to skip entries with 'latemount'.
-    # /system and /vendor must be mounted by the end of the fs stage,
-    # while /data is optional.
+    # Mount fstab in init.{$device}.rc by mount_all command. Optional parameter '--early' can be 
+    # specified to skip entries with 'latemount'. /system and /vendor must be mounted by the end of 
+    # the fs stage, while /data is optional.
     trigger fs
     trigger post-fs
 
-    # Mount fstab in init.{$device}.rc by mount_all with '--late' parameter
-    # to only mount entries with 'latemount'. This is needed if '--early' is
-    # specified in the previous mount_all command on the fs stage.
-    # With /system mounted and properties form /system + /factory available,
-    # some services can be started.
+    # Mount fstab in init.{$device}.rc by mount_all with '--late' parameter to only mount entries 
+    # with 'latemount'. This is needed if '--early' is specified in the previous mount_all command 
+    # on the fs stage. With /system mounted and properties form /system + /factory available, some 
+    # services can be started.
     trigger late-fs
 
-    # Now we can mount /data. File encryption requires keymaster to decrypt
-    # /data, which in turn can only be loaded when system properties are present.
+    # Now we can mount /data. File encryption requires keymaster to decrypt /data, which in turn can 
+    # only be loaded when system properties are present.
     trigger post-fs-data
 
     # Now we can start zygote for devices with file based encryption
@@ -310,10 +298,7 @@ on late-init
 
 on post-fs
     # Load properties from
-    #     /system/build.prop,
-    #     /odm/build.prop,
-    #     /vendor/build.prop and
-    #     /factory/factory.prop
+    #     /system/build.prop, /odm/build.prop, /vendor/build.prop and /factory/factory.prop
     load_system_props
     # start essential services
     start logd
@@ -321,8 +306,8 @@ on post-fs
     start hwservicemanager
     start vndservicemanager
 
-    # Once everything is setup, no need to modify /.
-    # The bind+ro combination avoids modifying any other mount flags.
+    # Once everything is setup, no need to modify /. The bind+ro combination avoids modifying any 
+    # other mount flags.
     mount rootfs rootfs / remount bind ro
     # Mount shared so changes propagate into child namespaces
     mount rootfs rootfs / shared rec
@@ -330,8 +315,8 @@ on post-fs
     mount none /mnt/runtime/default /storage bind rec
     mount none none /storage slave rec
 
-    # Make sure /sys/kernel/debug (if present) is labeled properly
-    # Note that tracefs may be mounted under debug, so we need to cross filesystems
+    # Make sure /sys/kernel/debug (if present) is labeled properly Note that tracefs may be mounted 
+    # under debug, so we need to cross filesystems
     restorecon --recursive --cross-filesystems /sys/kernel/debug
 
     # We chown/chmod /cache again so because mount is run as root + defaults
@@ -340,8 +325,8 @@ on post-fs
     # We restorecon /cache in case the cache partition has been reset.
     restorecon_recursive /cache
 
-    # Create /cache/recovery in case it's not there. It'll also fix the odd
-    # permissions if created by the recovery system.
+    # Create /cache/recovery in case it's not there. It'll also fix the odd permissions if created 
+    # by the recovery system.
     mkdir /cache/recovery 0770 system cache
 
     # Backup/restore mechanism uses the cache partition
@@ -374,12 +359,16 @@ on post-fs
     chmod 0700 /metadata/vold
 
 on late-fs
-    # Ensure that tracefs has the correct permissions.
-    # This does not work correctly if it is called in post-fs.
+    # Ensure that tracefs has the correct permissions. This does not work correctly if it is called 
+    # in post-fs.
     chmod 0755 /sys/kernel/debug/tracing
 
     # HALs required before storage encryption can get unlocked (FBE/FDE)
     class_start early_hal
+
+    # Check and mark a successful boot, before mounting userdata with mount_all. No-op for non-A/B 
+    # device.
+    exec_start update_verifier_nonencrypted
 
 on post-fs-data
     # We chown/chmod /data again so because mount is run as root + defaults
@@ -392,8 +381,8 @@ on post-fs-data
     start vold
     installkey /data
 
-    # Start bootcharting as soon as possible after the data partition is
-    # mounted to collect more data.
+    # Start bootcharting as soon as possible after the data partition is mounted to collect more 
+    # data.
     mkdir /data/bootchart 0755 shell shell
     bootchart start
 
@@ -468,8 +457,8 @@ on post-fs-data
     mkdir /data/vendor_de 0771 root root
     mkdir /data/vendor/hardware 0771 root root
 
-    # For security reasons, /data/local/tmp should always be empty.
-    # Do not place files or directories in /data/local/tmp
+    # For security reasons, /data/local/tmp should always be empty. Do not place files or 
+    # directories in /data/local/tmp
     mkdir /data/local/tmp 0771 shell shell
     mkdir /data/local/traces 0777 shell shell
     mkdir /data/data 0771 system system
@@ -488,8 +477,8 @@ on post-fs-data
     # create the A/B OTA directory, so as to enforce our permissions
     mkdir /data/ota 0771 root root
 
-    # create the OTA package directory. It will be accessed by GmsCore (cache
-    # group), update_engine and update_verifier.
+    # create the OTA package directory. It will be accessed by GmsCore (cache group), update_engine 
+    # and update_verifier.
     mkdir /data/ota_package 0770 system cache
 
     # create resource-cache and double-check the perms
@@ -500,12 +489,11 @@ on post-fs-data
     # create the lost+found directories, so as to enforce our permissions
     mkdir /data/lost+found 0770 root root
 
-    # create directory for DRM plug-ins - give drm the read/write access to
-    # the following directory.
+    # create directory for DRM plug-ins - give drm the read/write access to the following directory.
     mkdir /data/drm 0770 drm drm
 
-    # create directory for MediaDrm plug-ins - give drm the read/write access to
-    # the following directory.
+    # create directory for MediaDrm plug-ins - give drm the read/write access to the following 
+    # directory.
     mkdir /data/mediadrm 0770 mediadrm mediadrm
 
     mkdir /data/anr 0775 system system
@@ -514,8 +502,8 @@ on post-fs-data
     mkdir /data/nfc 0770 nfc nfc
     mkdir /data/nfc/param 0770 nfc nfc
 
-    # Create all remaining /data root dirs so that they are made through init
-    # and get proper encryption policy installed
+    # Create all remaining /data root dirs so that they are made through init and get proper 
+    # encryption policy installed
     mkdir /data/backup 0700 system system
     mkdir /data/ss 0700 system system
 
@@ -549,31 +537,23 @@ on post-fs-data
     # Check any timezone data in /data is newer than the copy in /system, delete if not.
     exec - system system -- /system/bin/tzdatacheck /system/usr/share/zoneinfo /data/misc/zoneinfo
 
-    # If there is no post-fs-data action in the init.<device>.rc file, you
-    # must uncomment this line, otherwise encrypted filesystems
-    # won't work.
-    # Set indication (checked by vold) that we have finished this action
-    #setprop vold.post_fs_data_done 1
+    # If there is no post-fs-data action in the init.<device>.rc file, you must uncomment this line, 
+    #otherwise encrypted filesystems won't work. Set indication (checked by vold) that we have 
+    #finished this action setprop vold.post_fs_data_done 1
 
-# It is recommended to put unnecessary data/ initialization from post-fs-data
-# to start-zygote in device's init.rc to unblock zygote start.
+# It is recommended to put unnecessary data/ initialization from post-fs-data to start-zygote in 
+# device's init.rc to unblock zygote start.
 on zygote-start && property:ro.crypto.state=unencrypted
-    # A/B update verifier that marks a successful boot.
-    exec_start update_verifier_nonencrypted
     start netd
     start zygote
     start zygote_secondary
 
 on zygote-start && property:ro.crypto.state=unsupported
-    # A/B update verifier that marks a successful boot.
-    exec_start update_verifier_nonencrypted
     start netd
     start zygote
     start zygote_secondary
 
 on zygote-start && property:ro.crypto.state=encrypted && property:ro.crypto.type=file
-    # A/B update verifier that marks a successful boot.
-    exec_start update_verifier_nonencrypted
     start netd
     start zygote
     start zygote_secondary
@@ -587,9 +567,8 @@ on boot
     # IPsec SA default expiration length
     write /proc/sys/net/core/xfrm_acq_expires 3600
 
-    # Memory management.  Basic kernel parameters, and allow the high
-    # level system server to be able to adjust the kernel OOM driver
-    # parameters to match how it is managing things.
+    # Memory management.  Basic kernel parameters, and allow the high level system server to be able 
+    # to adjust the kernel OOM driver parameters to match how it is managing things.
     write /proc/sys/vm/overcommit_memory 1
     write /proc/sys/vm/min_free_order_shift 4
     chown root system /sys/module/lowmemorykiller/parameters/adj
@@ -599,7 +578,7 @@ on boot
 
     # Tweak background writeout
     write /proc/sys/vm/dirty_expire_centisecs 200
-    write /proc/sys/vm/dirty_background_ratio  5
+    write /proc/sys/vm/dirty_background_ratio 5
 
     # Permissions for System Server and daemons.
     chown radio system /sys/android_power/state
@@ -700,13 +679,11 @@ on property:vold.decrypt=trigger_post_fs_data
     trigger zygote-start
 
 on property:vold.decrypt=trigger_restart_min_framework
-    # A/B update verifier that marks a successful boot.
-    exec_start update_verifier
     class_start main
 
 on property:vold.decrypt=trigger_restart_framework
-    # A/B update verifier that marks a successful boot.
-    exec_start update_verifier
+    stop surfaceflinger
+    start surfaceflinger
     class_start main
     class_start late_start
     setprop service.bootanim.exit 0
@@ -719,9 +696,8 @@ on property:vold.decrypt=trigger_shutdown_framework
 on property:sys.boot_completed=1
     bootchart stop
 
-# system server cannot write to /proc/sys files,
-# and chown/chmod does not work for /proc/sys/ entries.
-# So proxy writes through init.
+# system server cannot write to /proc/sys files, and chown/chmod does not work for /proc/sys/ 
+# entries. So proxy writes through init.
 on property:sys.sysctl.extra_free_kbytes=*
     write /proc/sys/vm/extra_free_kbytes ${sys.sysctl.extra_free_kbytes}
 
@@ -735,9 +711,8 @@ on property:security.perf_harden=0
 on property:security.perf_harden=1
     write /proc/sys/kernel/perf_event_paranoid 3
 
-# on shutdown
-# In device's init.rc, this trigger can be used to do device-specific actions
-# before shutdown. e.g disable watchdog and mask error handling
+# on shutdown In device's init.rc, this trigger can be used to do device-specific actions before 
+# shutdown. e.g disable watchdog and mask error handling
 
 ## Daemon processes to be run by init.
 ##
@@ -757,8 +732,8 @@ service console /system/bin/sh
     setenv HOSTNAME console
 
 on property:ro.debuggable=1
-    # Give writes to anyone for the trace folder on debug builds.
-    # The folder is used to store method traces.
+    # Give writes to anyone for the trace folder on debug builds. The folder is used to store method 
+    # traces.
     chmod 0773 /data/misc/trace
     # Give reads to anyone for the window trace folder on debug builds.
     chmod 0775 /data/misc/wmtrace
